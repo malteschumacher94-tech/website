@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Amazon Secrets</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink:          #1A1A1A;
+      --cream:        #F9F7F4;
+      --copper:       #C4622D;
+      --copper-light: #E8784A;
+      --muted:        #E8E4DF;
+      --sage:         #7A9E7E;
+      --mid:          #6B6560;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--cream);
+      color: var(--ink);
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--cream);
+      border-bottom: 1px solid var(--muted);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 5vw;
+      height: 64px;
+    }
+
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .nav-logo span { color: var(--copper); }
+
+    .nav-links {
+      display: flex; gap: 2rem; list-style: none;
+    }
+    .nav-links a {
+      font-size: 0.8rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--mid);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--copper); }
+
+    /* ── HERO (slim) ── */
+    .hero {
+      border-left: 4px solid var(--copper);
+      padding: 4rem 5vw;
+      background: var(--cream);
+    }
+
+    .hero-eyebrow {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--copper);
+      margin-bottom: 1rem;
+      display: flex; align-items: center; gap: 0.6rem;
+    }
+    .hero-eyebrow::before {
+      content: '';
+      display: inline-block;
+      width: 24px; height: 1px;
+      background: var(--copper);
+    }
+
+    .hero-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.2rem, 4vw, 3.4rem);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin-bottom: 1rem;
+      max-width: 700px;
+    }
+    .hero-title em { font-style: italic; color: var(--copper); }
+
+    .hero-sub {
+      font-size: 1rem;
+      color: var(--mid);
+      max-width: 560px;
+      line-height: 1.7;
+    }
+
+    /* ── TICKER ── */
+    .ticker {
+      background: var(--ink);
+      color: var(--cream);
+      overflow: hidden;
+      padding: 0.55rem 0;
+      white-space: nowrap;
+    }
+    .ticker-inner {
+      display: inline-flex;
+      animation: ticker 30s linear infinite;
+    }
+    .ticker-inner span {
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 0 2rem;
+    }
+    .ticker-inner span.sep { color: var(--copper); }
+    @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+    /* ── FILTER BAR ── */
+    .filter-bar {
+      padding: 2rem 5vw 0;
+      display: flex; gap: 0.6rem; flex-wrap: wrap;
+    }
+    .filter-btn {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.4rem 1rem;
+      border: 1.5px solid var(--muted);
+      border-radius: 2px;
+      background: transparent;
+      color: var(--mid);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .filter-btn:hover,
+    .filter-btn.active {
+      border-color: var(--copper);
+      color: var(--copper);
+      background: rgba(196,98,45,0.06);
+    }
+
+    /* ── SECTION LABEL ── */
+    .section-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--copper);
+      display: flex; align-items: center; gap: 1rem;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1; height: 1px;
+      background: var(--muted);
+    }
+
+    /* ── PRODUCTS SECTION ── */
+    .products-section {
+      padding: 3rem 5vw 6rem;
+    }
+
+    .products-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 2.5rem;
+    }
+
+    .products-count {
+      font-size: 0.78rem;
+      color: var(--mid);
+    }
+
+    /* ── PRODUCT GRID ── */
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+    }
+
+    /* ── PRODUCT CARD ── */
+    .product-card {
+      background: white;
+      border-radius: 3px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid var(--muted);
+      transition: box-shadow 0.3s, transform 0.3s;
+      cursor: pointer;
+    }
+    .product-card:hover {
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      transform: translateY(-3px);
+    }
+
+    /* Image placeholder */
+    .product-img {
+      width: 100%;
+      aspect-ratio: 4/3;
+      position: relative;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .product-img-bg {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      transition: transform 0.5s ease;
+    }
+    .product-card:hover .product-img-bg { transform: scale(1.04); }
+
+    .product-img-label {
+      position: absolute;
+      bottom: 0.8rem; left: 0.8rem;
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: rgba(0,0,0,0.55);
+      color: rgba(255,255,255,0.85);
+      padding: 0.25rem 0.6rem;
+      border-radius: 2px;
+      backdrop-filter: blur(4px);
+    }
+
+    /* Card body */
+    .product-body {
+      padding: 1.4rem 1.4rem 1.6rem;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .product-tag {
+      display: inline-block;
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: white;
+      background: var(--sage);
+      padding: 0.18rem 0.55rem;
+      border-radius: 2px;
+      margin-bottom: 0.75rem;
+      align-self: flex-start;
+    }
+    .product-tag.t-copper { background: var(--copper); }
+    .product-tag.t-ink    { background: var(--ink); }
+    .product-tag.t-sage   { background: var(--sage); }
+
+    .product-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15rem;
+      line-height: 1.25;
+      letter-spacing: -0.01em;
+      margin-bottom: 0.65rem;
+    }
+
+    .product-desc {
+      font-size: 0.86rem;
+      color: var(--mid);
+      line-height: 1.65;
+      flex: 1;
+    }
+
+    .product-footer {
+      margin-top: 1.2rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--muted);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+
+    .product-price {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--ink);
+      font-family: 'Playfair Display', serif;
+    }
+
+    .product-rating {
+      display: flex; align-items: center; gap: 0.3rem;
+      font-size: 0.72rem;
+      color: var(--mid);
+    }
+    .stars { color: var(--copper); letter-spacing: -1px; }
+
+    /* ── FEATURED ROW (first product, full-width) ── */
+    .product-card.featured {
+      grid-column: 1 / -1;
+      flex-direction: row;
+    }
+    .product-card.featured .product-img {
+      width: 42%;
+      aspect-ratio: unset;
+      flex-shrink: 0;
+    }
+    .product-card.featured .product-title { font-size: 1.6rem; }
+    .product-card.featured .product-desc  { font-size: 0.92rem; }
+
+    .featured-badge {
+      position: absolute;
+      top: 1rem; left: 1rem;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: var(--copper);
+      color: white;
+      padding: 0.3rem 0.7rem;
+      border-radius: 2px;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--ink);
+      color: #777;
+      padding: 2.5rem 5vw;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.78rem;
+    }
+    .footer-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      color: var(--cream);
+      font-weight: 700;
+    }
+    .footer-logo span { color: var(--copper); }
+
+    .footer-links { display: flex; gap: 1.5rem; list-style: none; }
+    .footer-links a { color: #777; text-decoration: none; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--copper); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .products-grid { grid-template-columns: repeat(2, 1fr); }
+      .product-card.featured { flex-direction: column; grid-column: auto; }
+      .product-card.featured .product-img { width: 100%; aspect-ratio: 4/3; }
+      .nav-links { display: none; }
+    }
+    @media (max-width: 600px) {
+      .products-grid { grid-template-columns: 1fr; }
+      footer { flex-direction: column; gap: 1.2rem; text-align: center; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .ticker-inner { animation: none; }
+      .product-img-bg,
+      .product-card { transition: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#">Amazon<span>Secrets</span></a>
+  <ul class="nav-links">
+    <li><a href="#">Tests</a></li>
+    <li><a href="#">Kauftipps</a></li>
+    <li><a href="#">Rezepte</a></li>
+    <li><a href="#">Über uns</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <h1 class="hero-title">Die besten Produkte, um Dein<br>Zuhause <em>aufzupimpen</em></h1>
+</header>
+
+<!-- TICKER -->
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-inner">
+    <span>Sous-vide</span><span class="sep">✦</span>
+    <span>Airfryer</span><span class="sep">✦</span>
+    <span>Espressomaschinen</span><span class="sep">✦</span>
+    <span>Messer & Schleifer</span><span class="sep">✦</span>
+    <span>Küchenmaschinen</span><span class="sep">✦</span>
+    <span>Reiben & Hobel</span><span class="sep">✦</span>
+    <span>Waagen & Thermometer</span><span class="sep">✦</span>
+    <span>Sous-vide</span><span class="sep">✦</span>
+    <span>Airfryer</span><span class="sep">✦</span>
+    <span>Espressomaschinen</span><span class="sep">✦</span>
+    <span>Messer & Schleifer</span><span class="sep">✦</span>
+    <span>Küchenmaschinen</span><span class="sep">✦</span>
+    <span>Reiben & Hobel</span><span class="sep">✦</span>
+    <span>Waagen & Thermometer</span><span class="sep">✦</span>
+  </div>
+</div>
+
+<!-- FILTER BAR -->
+<div class="filter-bar" role="group" aria-label="Kategorien filtern">
+  <button class="filter-btn active" onclick="filterProducts('all', this)">Alle</button>
+  <button class="filter-btn" onclick="filterProducts('kochen', this)">Kochen</button>
+  <button class="filter-btn" onclick="filterProducts('kaffee', this)">Kaffee</button>
+  <button class="filter-btn" onclick="filterProducts('backen', this)">Backen</button>
+  <button class="filter-btn" onclick="filterProducts('schneiden', this)">Schneiden</button>
+  <button class="filter-btn" onclick="filterProducts('messen', this)">Messen</button>
+</div>
+
+<!-- PRODUCTS -->
+<section class="products-section">
+  <div class="products-header">
+    <p class="section-label" style="flex:1;">Produktübersicht</p>
+    <p class="products-count" id="products-count">6 Produkte</p>
+  </div>
+
+  <div class="products-grid" id="products-grid">
+
+    <!-- Produkt 1: Alessi Juicy Salif -->
+    <article class="product-card featured" data-category="kochen">
+      <div class="product-img">
+        <div class="product-img-bg" style="background: linear-gradient(135deg, #111111 0%, #2a2a2a 50%, #3a3a3a 100%);">
+          <!-- SVG Illustration: Alessi Juicy Salif – iconic spider/rocket lemon squeezer shape -->
+          <svg width="180" height="260" viewBox="0 0 180 260" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="silverG" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#c8c8c8"/>
+                <stop offset="40%" stop-color="#f0f0f0"/>
+                <stop offset="70%" stop-color="#e0e0e0"/>
+                <stop offset="100%" stop-color="#a0a0a0"/>
+              </linearGradient>
+              <linearGradient id="headSilver" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#b0b0b0"/>
+                <stop offset="50%" stop-color="#ffffff"/>
+                <stop offset="100%" stop-color="#b8b8b8"/>
+              </linearGradient>
+              <radialGradient id="topCone" cx="50%" cy="30%" r="60%">
+                <stop offset="0%" stop-color="#ffffff"/>
+                <stop offset="100%" stop-color="#a8a8a8"/>
+              </radialGradient>
+              <filter id="softShadow">
+                <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="rgba(0,0,0,0.5)"/>
+              </filter>
+            </defs>
+
+            <!-- Shadow on floor -->
+            <ellipse cx="90" cy="252" rx="38" ry="6" fill="rgba(0,0,0,0.4)"/>
+
+            <!-- Left leg -->
+            <path d="M90 175 Q58 200 32 242" stroke="url(#silverG)" stroke-width="7" fill="none" stroke-linecap="round"/>
+            <path d="M90 175 Q58 200 32 242" stroke="rgba(255,255,255,0.3)" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <!-- Right leg -->
+            <path d="M90 175 Q122 200 148 242" stroke="url(#silverG)" stroke-width="7" fill="none" stroke-linecap="round"/>
+            <path d="M90 175 Q122 200 148 242" stroke="rgba(255,255,255,0.3)" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <!-- Center leg -->
+            <path d="M90 178 L90 248" stroke="url(#silverG)" stroke-width="7" stroke-linecap="round"/>
+            <path d="M90 178 L90 248" stroke="rgba(255,255,255,0.3)" stroke-width="2" stroke-linecap="round"/>
+
+            <!-- Leg feet (small balls) -->
+            <circle cx="32" cy="243" r="5" fill="url(#silverG)"/>
+            <circle cx="90" cy="249" r="5" fill="url(#silverG)"/>
+            <circle cx="148" cy="243" r="5" fill="url(#silverG)"/>
+
+            <!-- Body stem (connecting legs to cone) -->
+            <ellipse cx="90" cy="176" rx="18" ry="10" fill="url(#silverG)" filter="url(#softShadow)"/>
+
+            <!-- Main cone body -->
+            <path d="M72 175 Q68 130 80 85 Q85 60 90 40 Q95 60 100 85 Q112 130 108 175 Z"
+                  fill="url(#headSilver)" filter="url(#softShadow)"/>
+            <!-- Cone highlight -->
+            <path d="M85 175 Q82 130 88 85 Q89 65 90 50 Q91 65 91 85 Q93 130 92 175 Z"
+                  fill="rgba(255,255,255,0.4)"/>
+
+            <!-- Juicing ridges on cone -->
+            <path d="M80 155 Q90 152 100 155" stroke="rgba(160,160,160,0.5)" stroke-width="1" fill="none"/>
+            <path d="M78 145 Q90 141 102 145" stroke="rgba(160,160,160,0.5)" stroke-width="1" fill="none"/>
+            <path d="M77 135 Q90 130 103 135" stroke="rgba(160,160,160,0.5)" stroke-width="1" fill="none"/>
+            <path d="M78 125 Q90 120 102 125" stroke="rgba(160,160,160,0.5)" stroke-width="1" fill="none"/>
+            <path d="M79 115 Q90 110 101 115" stroke="rgba(160,160,160,0.5)" stroke-width="1" fill="none"/>
+            <path d="M80 105 Q90 100 100 105" stroke="rgba(160,160,160,0.5)" stroke-width="1" fill="none"/>
+
+            <!-- Tip / top point -->
+            <ellipse cx="90" cy="40" rx="10" ry="14" fill="url(#topCone)"/>
+            <ellipse cx="90" cy="34" rx="5" ry="7" fill="white" opacity="0.7"/>
+
+            <!-- Subtle reflection on legs -->
+            <path d="M90 178 L90 240" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+          </svg>
+        </div>
+        <span class="featured-badge">Design-Ikone</span>
+      </div>
+      <div class="product-body">
+        <span class="product-tag t-copper">Küche &amp; Design</span>
+        <h2 class="product-title">Alessi Juicy Salif – Zitronenpresse von Philippe Starck</h2>
+        <p class="product-desc">Ein Designobjekt, das seit 1990 Küchen in Galerien verwandelt. Philippe Starck entwarf die Juicy Salif auf einer Serviette während seines Italienurlaubs – Alessi erkannte das Potenzial sofort. Das Ergebnis: eine Zitronenpresse aus poliertem Gussaluminium, die aussieht wie eine Mischung aus Rakete und Spinne. Funktioniert erstaunlich gut für Zitronen und Limetten, sorgt garantiert für Gesprächsstoff und ist längst ein Kultobjekt des 20. Jahrhunderts. In einer edlen Alessi-Geschenkbox geliefert.</p>
+        <div class="product-footer">
+          <span class="product-price">ab 70 €</span>
+          <a href="https://www.amazon.de/Alessi-Zitronenpresse-Gu%C3%9Faluminium-gl%C3%A4nzend-silber/dp/B00004YTQZ/" target="_blank" rel="noopener" style="font-size:0.78rem;font-weight:600;color:var(--copper);text-decoration:none;border-bottom:1.5px solid var(--copper);padding-bottom:1px;letter-spacing:0.04em;">Auf Amazon ansehen →</a>
+          <span class="product-rating"><span class="stars">★★★★☆</span> 4,2</span>
+        </div>
+      </div>
+    </article>
+
+    <!-- Produkt 2 -->
+    <article class="product-card" data-category="kaffee">
+      <div class="product-img">
+        <div class="product-img-bg" style="background: linear-gradient(135deg, #2A1A0E 0%, #6B3A1E 55%, #A0522D 100%); flex-direction:column; gap:0.6rem;">
+          <!-- SVG Placeholder: Espressomaschine -->
+          <svg width="100" height="110" viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg" opacity="0.9">
+            <rect x="10" y="20" width="80" height="70" rx="8" fill="#333"/>
+            <rect x="18" y="28" width="64" height="38" rx="4" fill="#222"/>
+            <circle cx="38" cy="47" r="10" fill="#444" stroke="#C4622D" stroke-width="1.5"/>
+            <circle cx="38" cy="47" r="6" fill="#555"/>
+            <circle cx="62" cy="40" r="7" fill="#444" stroke="#888" stroke-width="1"/>
+            <circle cx="62" cy="40" r="3.5" fill="#333"/>
+            <rect x="28" y="73" width="44" height="8" rx="3" fill="#444"/>
+            <rect x="35" y="81" width="8" height="18" rx="2" fill="#555"/>
+            <rect x="57" y="81" width="8" height="18" rx="2" fill="#555"/>
+            <circle cx="50" cy="15" r="5" fill="#C4622D" opacity="0.8"/>
+            <rect x="14" y="90" width="72" height="10" rx="3" fill="#2a2a2a"/>
+          </svg>
+          <span style="font-size:0.65rem;color:rgba(255,255,255,0.5);letter-spacing:0.1em;text-transform:uppercase;">Illustration</span>
+        </div>
+        <span class="product-img-label">Platzhalter-Bild</span>
+      </div>
+      <div class="product-body">
+        <span class="product-tag t-ink">Kaffee</span>
+        <h2 class="product-title">Produkt-Platzhalter 2 – Espressomaschine</h2>
+        <p class="product-desc">Hier steht die Produktbeschreibung. Integriertes Mahlwerk, Dampfdüse für Milchschaum und ein großes Wassertank-Volumen. Dieser Platzhalter beschreibt, warum dieses Gerät Barista-Feeling ins Zuhause bringt.</p>
+        <div class="product-footer">
+          <span class="product-price">ab 549 €</span>
+          <span class="product-rating"><span class="stars">★★★★☆</span> 4,4</span>
+        </div>
+      </div>
+    </article>
+
+    <!-- Produkt 3 -->
+    <article class="product-card" data-category="schneiden">
+      <div class="product-img">
+        <div class="product-img-bg" style="background: linear-gradient(135deg, #111820 0%, #1E3050 55%, #2E5080 100%);">
+          <!-- SVG Placeholder: Messer -->
+          <svg width="120" height="90" viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg" opacity="0.9">
+            <defs>
+              <linearGradient id="bladeG" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#B0B8C0"/><stop offset="60%" stop-color="#E8EDF2"/><stop offset="100%" stop-color="#C0C8D0"/>
+              </linearGradient>
+            </defs>
+            <!-- Blade -->
+            <polygon points="10,38 90,30 90,44 10,52" fill="url(#bladeG)"/>
+            <line x1="10" y1="45" x2="88" y2="37" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>
+            <!-- Bolster -->
+            <rect x="88" y="28" width="6" height="20" rx="1" fill="#888"/>
+            <!-- Handle -->
+            <rect x="94" y="30" width="22" height="16" rx="5" fill="#3D2B1F"/>
+            <circle cx="100" cy="38" r="2" fill="#555"/>
+            <circle cx="108" cy="38" r="2" fill="#555"/>
+          </svg>
+        </div>
+        <span class="product-img-label">Platzhalter-Bild</span>
+      </div>
+      <div class="product-body">
+        <span class="product-tag t-sage">Schneiden</span>
+        <h2 class="product-title">Produkt-Platzhalter 3 – Japanisches Kochmesser</h2>
+        <p class="product-desc">Hier steht die Produktbeschreibung. Hauchdünn geschliffene Klinge aus Damaststahl, ausgewogene Balance und ein Griff aus Pakkaholz. Dieser Platzhalter zeigt, wann sich die Investition wirklich lohnt.</p>
+        <div class="product-footer">
+          <span class="product-price">ab 89 €</span>
+          <span class="product-rating"><span class="stars">★★★★★</span> 4,9</span>
+        </div>
+      </div>
+    </article>
+
+    <!-- Produkt 4 -->
+    <article class="product-card" data-category="kochen">
+      <div class="product-img">
+        <div class="product-img-bg" style="background: linear-gradient(135deg, #1A2E20 0%, #2E6040 55%, #4A9060 100%);">
+          <!-- SVG Placeholder: Airfryer -->
+          <svg width="100" height="105" viewBox="0 0 100 105" xmlns="http://www.w3.org/2000/svg" opacity="0.9">
+            <rect x="15" y="10" width="70" height="75" rx="12" fill="#2a2a2a"/>
+            <rect x="22" y="17" width="56" height="40" rx="8" fill="#222"/>
+            <circle cx="50" cy="37" r="18" fill="#333" stroke="#4A9060" stroke-width="1.5"/>
+            <circle cx="50" cy="37" r="10" fill="#1a1a1a"/>
+            <text x="50" y="41" text-anchor="middle" font-size="9" fill="#4A9060">🌀</text>
+            <rect x="22" y="63" width="25" height="14" rx="3" fill="#333"/>
+            <circle cx="69" cy="70" r="7" fill="#333" stroke="#888" stroke-width="1"/>
+            <rect x="10" y="85" width="80" height="12" rx="5" fill="#222"/>
+          </svg>
+        </div>
+        <span class="product-img-label">Platzhalter-Bild</span>
+      </div>
+      <div class="product-body">
+        <span class="product-tag t-copper">Kochen</span>
+        <h2 class="product-title">Produkt-Platzhalter 4 – Heißluftfritteuse</h2>
+        <p class="product-desc">Hier steht die Produktbeschreibung. Knusprig ohne Fett, schnell vorgeheizt und leicht zu reinigen. Dieser Platzhalter beschreibt, ob das Gerät seinen Versprechen gerecht wird – und für wen es sich lohnt.</p>
+        <div class="product-footer">
+          <span class="product-price">ab 129 €</span>
+          <span class="product-rating"><span class="stars">★★★★☆</span> 4,3</span>
+        </div>
+      </div>
+    </article>
+
+    <!-- Produkt 5 -->
+    <article class="product-card" data-category="backen">
+      <div class="product-img">
+        <div class="product-img-bg" style="background: linear-gradient(135deg, #2A1540 0%, #5A2A80 55%, #8040B0 100%);">
+          <!-- SVG Placeholder: Küchenmaschine -->
+          <svg width="110" height="100" viewBox="0 0 110 100" xmlns="http://www.w3.org/2000/svg" opacity="0.9">
+            <ellipse cx="55" cy="80" rx="38" ry="12" fill="#1a1a1a"/>
+            <rect x="25" y="20" width="60" height="58" rx="10" fill="#333"/>
+            <rect x="32" y="27" width="26" height="38" rx="6" fill="#2a2a2a"/>
+            <circle cx="80" cy="46" r="14" fill="#222" stroke="#8040B0" stroke-width="1.5"/>
+            <circle cx="80" cy="46" r="6" fill="#1a1a1a"/>
+            <circle cx="80" cy="46" r="2" fill="#8040B0"/>
+            <rect x="30" y="68" width="50" height="5" rx="2" fill="#444"/>
+            <path d="M45 65 Q55 50 65 65" stroke="#8040B0" stroke-width="1.5" fill="none" opacity="0.6"/>
+          </svg>
+        </div>
+        <span class="product-img-label">Platzhalter-Bild</span>
+      </div>
+      <div class="product-body">
+        <span class="product-tag t-sage">Backen</span>
+        <h2 class="product-title">Produkt-Platzhalter 5 – Küchenmaschine</h2>
+        <p class="product-desc">Hier steht die Produktbeschreibung. Knetfunktion, Rühraufsatz und Spritzschutz inklusive. Dieser Platzhalter erklärt, warum diese Maschine beim Backen echte Arbeit abnimmt und wie sie sich im Alltag bewährt.</p>
+        <div class="product-footer">
+          <span class="product-price">ab 399 €</span>
+          <span class="product-rating"><span class="stars">★★★★★</span> 4,7</span>
+        </div>
+      </div>
+    </article>
+
+    <!-- Produkt 6 -->
+    <article class="product-card" data-category="messen">
+      <div class="product-img">
+        <div class="product-img-bg" style="background: linear-gradient(135deg, #1A1A10 0%, #404020 55%, #707030 100%);">
+          <!-- SVG Placeholder: Küchenwaage -->
+          <svg width="110" height="80" viewBox="0 0 110 80" xmlns="http://www.w3.org/2000/svg" opacity="0.9">
+            <rect x="10" y="45" width="90" height="28" rx="6" fill="#2a2a2a"/>
+            <rect x="20" y="15" width="70" height="32" rx="4" fill="#333" stroke="#606030" stroke-width="1"/>
+            <rect x="28" y="20" width="40" height="18" rx="2" fill="#1a1a1a"/>
+            <text x="48" y="33" text-anchor="middle" font-family="monospace" font-size="11" fill="#C8D060" font-weight="bold">0.0 g</text>
+            <rect x="75" y="23" width="8" height="8" rx="2" fill="#404040"/>
+            <rect x="14" y="53" width="12" height="10" rx="2" fill="#404040"/>
+            <line x1="55" y1="45" x2="55" y2="15" stroke="#505030" stroke-width="1" stroke-dasharray="2,2"/>
+          </svg>
+        </div>
+        <span class="product-img-label">Platzhalter-Bild</span>
+      </div>
+      <div class="product-body">
+        <span class="product-tag t-ink">Messen</span>
+        <h2 class="product-title">Produkt-Platzhalter 6 – Digitale Küchenwaage</h2>
+        <p class="product-desc">Hier steht die Produktbeschreibung. Auf ein Gramm genau, mit ausziehbarem Display und Tara-Funktion. Dieser Platzhalter zeigt, warum präzises Abwiegen beim Backen den Unterschied macht.</p>
+        <div class="product-footer">
+          <span class="product-price">ab 39 €</span>
+          <span class="product-rating"><span class="stars">★★★★☆</span> 4,5</span>
+        </div>
+      </div>
+    </article>
+
+  </div><!-- /products-grid -->
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Amazon<span>Secrets</span></div>
+  <ul class="footer-links">
+    <li><a href="#">Impressum</a></li>
+    <li><a href="#">Datenschutz</a></li>
+    <li><a href="#">Kontakt</a></li>
+  </ul>
+  <p>© 2025 Amazon Secrets</p>
+</footer>
+
+<script>
+  function filterProducts(category, btn) {
+    // Update buttons
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    // Filter cards
+    const cards = document.querySelectorAll('.product-card');
+    let visible = 0;
+    cards.forEach(card => {
+      const match = category === 'all' || card.dataset.category === category;
+      card.style.display = match ? '' : 'none';
+      if (match) visible++;
+    });
+
+    // Update count
+    document.getElementById('products-count').textContent =
+      visible + (visible === 1 ? ' Produkt' : ' Produkte');
+  }
+</script>
+
+</body>
+</html>
